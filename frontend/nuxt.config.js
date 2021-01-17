@@ -1,20 +1,7 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
-  // Target (https://go.nuxtjs.dev/config-target)
-  ssr: true,
-  server: {
-    port: 8080, // default: 3000
-    host: '0.0.0.0' // default: localhost
-  },
-  target: 'static',
-  env: {
-    github_client_id: process.env.github_client_id,
-    paypal_client_id:process.env.paypal_client_id,
-    url:process.env.url,
-    prefix:process.env.prefix,
-  },
-  // Global page headers (https://go.nuxtjs.dev/config-head)
+    // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     titleTemplate: '%s ',
     title: 'Open Source Marketplace',
@@ -28,18 +15,10 @@ export default {
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [],
-
-  // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [],
-
-  // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
-
-  // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
-    // https://go.nuxtjs.dev/typescript
     '@nuxt/typescript-build',
-    // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
     '@nuxtjs/dotenv'
   ],
@@ -55,7 +34,7 @@ export default {
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
-    defaultAssets: {icons: 'fa'},
+    defaultAssets: { icons: 'fa' },
     customVariables: ['~/assets/variables.scss'],
     theme: {
       dark: false,
@@ -75,8 +54,6 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    parallel: true,
-  cache: true,
-  hardSource: true
+   
   },
 }

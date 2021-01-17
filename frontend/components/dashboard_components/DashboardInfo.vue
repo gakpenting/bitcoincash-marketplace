@@ -17,14 +17,14 @@
     <v-card class="mx-5" max-width="344" outlined>
       <v-list-item three-line>
         <v-list-item-content>
-          <v-list-item-title class="headline mb-1"> Balance </v-list-item-title>
+          <v-list-item-title class="headline mb-1"> Bitcoin Cash Balance </v-list-item-title>
           <v-list-item-title>
             <v-row justify="space-between">
 
-              <v-col class="font-weight-bold text-h5" v-if="paypalToken">$ {{paypalBalance}}</v-col>
+              <v-col class="font-weight-bold text-h5" v-if="paypalToken">tBCH {{paypalBalance}}</v-col>
 
               <v-col v-if="paypalToken"><v-btn color="red" :disabled="disabled" @click="disconnect">DISCONNECT PAYPAL</v-btn></v-col>
-              <v-col v-if="!paypalToken"><v-btn color="blue" :disabled="disabled" @click="connect">CONNECT PAYPAL</v-btn></v-col>
+              <v-col v-if="!paypalToken"><v-btn color="green" class="white--text" :disabled="disabled" @click="connect">SET MAIN ADDRESS</v-btn></v-col>
             </v-row>
           </v-list-item-title>
         </v-list-item-content>

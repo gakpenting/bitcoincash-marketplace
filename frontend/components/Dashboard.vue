@@ -84,8 +84,13 @@ export default class MyStore extends Vue {
   public ownedRepo: Array<object> = []
   public paypalBalance: number = 0
   public amountRefresh: number = 0
-  public disabled: boolean = false
-  public pageInfo_: object = {hasPreviousPage:false,hasNextPage:false,startCursor:"",endCursor:""}
+  public disabled: boolean = true
+  public pageInfo_: object = {
+    hasPreviousPage: false,
+    hasNextPage: false,
+    startCursor: '',
+    endCursor: '',
+  }
   logout() {
     Cookies.remove('token')
     window.location.href = '/'
@@ -94,42 +99,46 @@ export default class MyStore extends Vue {
     // if (!this.login) window.location.href = '/'
     this.disabled = true
     const token = Cookies.get('token')
-    const url = configs.get_profile_url
+    const url=configs.url
+    const profile_url = configs.get_profile_url
     const forSaleUrl = configs.get_for_sale_url
     const ownedRepoUrl = configs.get_owned_repo_url
-    const getPaypalUrl = configs.get_paypal_url
-    const profile = await this.$axios.get(`${url}?token=${token}`)
+    const profile = this.$axios.get(`${url}?token=${token}`)
+    const forSale = this.$axios.get(`${forSaleUrl}?token=${token}`)
+    const ownedRepo =  this.$axios.get(`${ownedRepoUrl}?token=${token}`)
     this.username = profile.data.data.login
     this.profilePhoto = profile.data.data.avatarUrl
-    const forSale = await this.$axios.get(`${forSaleUrl}?token=${token}`)
     this.forSale = forSale.data.data
-    const ownedRepo = await this.$axios.get(`${ownedRepoUrl}?token=${token}`)
     this.ownedRepo = ownedRepo.data.data
-    const paypalToken = await this.$axios.get(`${getPaypalUrl}?token=${token}`)
-
-    if (paypalToken.data.status && !paypalToken.data.data.disconnect) {
-      this.paypalToken = true
-      this.paypalBalance = paypalToken.data.data.amount
-    }
     this.disabled = false
   }
   async getAllRepo(after_: string, before_: string): Promise<void> {
-     this.disabled = true
+    this.disabled = true
     const token = Cookies.get('token')
     const url = configs.get_all_repo_url
 
     if (this.allRepo.length === 0) {
       const { data } = await this.$axios.get(`${url}?token=${token}`)
-      this.allRepo = data.data.nodes.map(({...other})=>(this.forSale.filter(({repo_id}:any)=>repo_id===other.id).length>0?{added:true,...other}:{...other}))
+      this.allRepo = data.data.nodes.map(({ ...other }) =>
+        this.forSale.filter(({ repo_id }: any) => repo_id === other.id).length >
+        0
+          ? { added: true, ...other }
+          : { ...other }
+      )
       console.log(this.allRepo)
       this.pageInfo_ = data.data.pageInfo
-    } else if(typeof after_==="string"||typeof before_==="string"){
+    } else if (typeof after_ === 'string' || typeof before_ === 'string') {
       const { data } = await this.$axios.get(
         `${url}?token=${token}${before_ ? `&before=${before_}` : ''}${
           after_ ? `&after=${after_}` : ''
         }`
       )
-      this.allRepo = data.data.nodes.map(({...other})=>(this.forSale.filter(({repo_id}:any)=>repo_id===other.id).length>0?{added:true,...other}:{...other}))
+      this.allRepo = data.data.nodes.map(({ ...other }) =>
+        this.forSale.filter(({ repo_id }: any) => repo_id === other.id).length >
+        0
+          ? { added: true, ...other }
+          : { ...other }
+      )
       this.pageInfo_ = data.data.pageInfo
     }
 
@@ -140,7 +149,6 @@ export default class MyStore extends Vue {
     // console.log(amount)
     this.disabled = true
     if (Number(amount) === 0 || Number(amount) < 0 || !amount) {
-
       this.snackbarAmount = true
       this.disabled = false
       return
@@ -158,12 +166,12 @@ export default class MyStore extends Vue {
     this.disabled = false
   }
   async listRepo(item: object): Promise<void> {
-      this.disabled = true
+    this.disabled = true
     const token = Cookies.get('token')
     const url = configs.list_repo_url
     const { data } = await this.$axios.post(`${url}?token=${token}`, { item })
     this.forSale = data.data
-    this.dialog=false
+    this.dialog = false
     this.disabled = false
   }
   async unlistRepo(id: string) {
@@ -176,7 +184,7 @@ export default class MyStore extends Vue {
   }
   async connectPaypal() {
     if (this.username.trim() !== '') {
-      window.location.href = `https://www.sandbox.paypal.com/connect/?flowEntry=static&client_id=${configs.paypal_client_id}&response_type=code&scope=email&redirect_uri=${configs.redirect_uri_paypal}`
+      window.location.href = `/address`
     } else {
       alert('please wait until username shown')
     }
@@ -186,7 +194,7 @@ export default class MyStore extends Vue {
     if (this.username.trim() !== '') {
       const url = configs.disconnect_paypal_url
       const token = Cookies.get('token')
-     await this.$axios.post(`${url}?token=${token}`)
+      await this.$axios.post(`${url}?token=${token}`)
       this.paypalToken = false
     } else {
       alert('please wait until username shown')

@@ -8,9 +8,14 @@ const {
   allRepo,
   ownedRepo,
   profile,
-  
 } = require("./utils/for_sale");
-const { sell_repo, unlist_repo, for_sale_repo, list_repo,repo_detail} = require("./utils/sell_repo");
+const {
+  sell_repo,
+  unlist_repo,
+  for_sale_repo,
+  list_repo,
+  repo_detail,
+} = require("./utils/sell_repo");
 const {
   authorize_paypal,
   save_paypal,
@@ -18,7 +23,90 @@ const {
   disconnect_paypal,
 } = require("./utils/paypal");
 const { buy_paypal, manage_access } = require("./utils/manage_access");
-
+const {
+  get_profile_db,
+  add_address,
+  list_address,
+  add_main_address,
+  remove_main_address,
+  create_new,
+} = require("./utils/bitcoin_cash");
+router.post("/create-new", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    const response = await create_new(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
+router.post("/remove-main-address", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    params.address = req.body.address;
+    const response = await remove_main_address(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
+router.post("/add-main-address", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    params.address = req.body.address;
+    const response = await add_main_address(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
+router.get("/list-address", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    const response = await list_address(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
+router.get("/get-profile-db", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    const response = await get_profile_db(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
+router.post("/add-address", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    params.address = req.body.address;
+    params.mnemonic = req.body.mnemonic;
+    const response = await add_address(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
 router.get("/authorize_github", async function (req, res, next) {
   const params = {};
   params.code = req.query.code;
@@ -67,7 +155,7 @@ router.get("/get-owned-repo", async function (req, res, next) {
     params.token_pass = process.env.token_pass;
     params.token = req.query.token;
     params.frontend_url = process.env.frontend_url;
-     const response = await ownedRepo(params, model);
+    const response = await ownedRepo(params, model);
     return res.json(response);
   } catch (e) {
     console.log(e.message);
@@ -84,6 +172,7 @@ router.get("/get-profile", async function (req, res, next) {
   const response = await profile(params, model);
   return res.json(response);
 });
+
 router.post("/sell-repo", async function (req, res, next) {
   const params = {};
   params.name = req.body.name;
@@ -185,8 +274,8 @@ router.post("/buy-paypal", async function (req, res, next) {
 });
 router.post("/repo-detail", async function (req, res, next) {
   const params = {};
-  params.name=req.body.name
-  params.username=req.body.username
+  params.name = req.body.name;
+  params.username = req.body.username;
   const response = await repo_detail(params, model);
   return res.json(response);
 });
@@ -206,18 +295,17 @@ router.get(
   }
 );
 router.post("/list-repo", async function (req, res, next) {
-  try{
+  try {
     const params = {};
-  params.item = req.body.item;
-  params.token = req.query.token;
-  params.token_pass = process.env.token_pass;
-  const response = await list_repo(params, model);
-  return res.json(response);
-  }catch(e){
-    console.log(e.message)
-    return res.status(503).end()
+    params.item = req.body.item;
+    params.token = req.query.token;
+    params.token_pass = process.env.token_pass;
+    const response = await list_repo(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
   }
-  
 });
 router.get("/", async function (req, res, next) {
   return res.send("im healthy");
