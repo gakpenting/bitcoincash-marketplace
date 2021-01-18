@@ -30,34 +30,9 @@
         </v-card-text>
         <v-card-action
           ><v-row class="d-flex align-content-center mx-5">
-            <v-col cols="5" class="d-flex justify-start align-content-center">
-              <div
-                class="d-flex align-center text-h5"
-                :style="{ height: '100%' }"
-                v-if="item.sell === 'SELL'&&!ownedRepo"
-              >
-                $ {{ item.amount }}
-              </div>
-              <v-text-field
-                v-if="item.sell === 'UNLIST'"
-                label="Amount"
-                type="number"
-                outlined
-                prefix="$"
-                :disabled="!paypalToken"
-                v-model="amount"
-              ></v-text-field>
-            </v-col>
+
             <v-col class="d-flex mt-2 justify-end">
-              <v-btn
-                @click="sellRepo(item._id, amount)"
-                color="red"
-                v-if="item.sell === 'UNLIST'&&!ownedRepo"
-                :disabled="!paypalToken||disabled"
-                >SELL</v-btn
-              ><v-btn :disabled="!paypalToken||disabled" v-if="item.sell === 'SELL'&&!ownedRepo" @click="unlistRepo(item._id)"
-                >UNLIST</v-btn
-              >
+
               <v-btn v-if="ownedRepo" target="_blank" :href="item.url"
                 >GO TO URL</v-btn
               >
@@ -72,26 +47,10 @@
 import { Component, Vue, Prop, Emit } from 'nuxt-property-decorator'
 @Component
 export default class MyStore extends Vue {
-  @Prop({ required: false }) readonly refreshRepo!: void
-  @Prop({ required: false }) readonly paypalToken!: boolean
-  @Prop({ required: true }) readonly listRepo!: Array<object>
-  @Prop({ required: true }) readonly amountRefresh!: number
+    @Prop({ required: true }) readonly listRepo!: Array<object>
   @Prop({ required: true }) readonly ownedRepo!: boolean
     @Prop({ required: true }) readonly disabled!: boolean
 
-  public amount: number=this.amountRefresh
-  @Emit()
-  getAllRepo() {
-
-  }
-  @Emit()
-  sellRepo(_id: string, amount: number) {
-    return { _id, amount }
-  }
-  @Emit()
-  unlistRepo(_id: string) {
-    return { _id }
-  }
 }
 </script>
 

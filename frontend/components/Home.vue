@@ -47,7 +47,7 @@
       >
         <v-img height="250" :src="item.openGraphImageUrl"></v-img>
 
-        <v-card-title><a style="text-decoration:none;color:black;" :href="`/detail?username=${item.username}&name=${item.name}`">{{ item.name }}</a></v-card-title>
+        <v-card-title><a style="text-decoration:none;color:black;" :href="`/buy?username=${item.username}&name=${item.name}`">{{ item.name }}</a></v-card-title>
 
         <v-card-text>
           <div>{{ item.description }}</div>
@@ -56,14 +56,15 @@
         <v-divider class="mx-4"></v-divider>
 
         <v-card-actions>
-          <v-flex>$ {{ item.amount }}</v-flex>
+          <v-flex  :style="{cursor:'pointer'}" @click="convertCrypto(item.amount, convertTo)"> {{ convertTo === 'satoshi' ? 'tBCH' : 'satoshi' }}
+                {{ convertCrypto(item.amount,convertTo === 'satoshi' ? 'tBCH' : 'satoshi') }}</v-flex>
           <v-flex v-if="item.username !== username && !item.owned"
             ><div class="d-flex justify-end">
               <v-btn
               :disabled="disabled"
                 class="d-flex justify-end"
                 color="deep-purple lighten-2"
-                @click="buyNow(item.repo_id)"
+                @click="buyNow(item.username,item.name)"
                 text
               >
                 Buy Now
@@ -101,9 +102,21 @@ export default class MyStore extends Vue {
   public username: string = ''
   public disabled: boolean = false
   public buy_paypal_url: string = ""
+   public convertTo: string = 'tBCH'
   logout() {
     Cookies.remove('token')
     window.location.reload()
+  }
+  convertCrypto(amount:number, to = 'satoshi') {
+    const url = configs.url
+    if (to === 'satoshi') {
+      this.convertTo = 'tBCH'
+      return amount
+    } else {
+      this.convertTo = 'satoshi'
+      return amount/100000000;
+
+    }
   }
   async mounted() {
     const token = Cookies.get('token')
@@ -129,23 +142,10 @@ export default class MyStore extends Vue {
       console.log(e.message)
     }
   }
-  async buyNow(id:any) {
+  async buyNow(username:string,name:string) {
 
-    this.disabled=true;
-    const token = Cookies.get('token')
-    if(!token){
-      window.location.href="/login"
-      return
-    }
-    const url=<string>configs.buy_paypal_url;
-    const res = await this.$axios.post(url, { id, token })
-    if (res.data) {
-      const link=res.data.result.links.filter((a:any)=>a.rel==="approve")[0].href
-      window.location.href=link;
-    }else{
-      this.disabled=false;
-      alert("error")
-    }
+      window.location.href=`/buy?username=${username}&name=${name}`;
+
   }
 }
 </script>

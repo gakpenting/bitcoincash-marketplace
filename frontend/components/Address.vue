@@ -30,7 +30,7 @@
     <v-btn color="blue" class="mr-4 white--text" :disabled="disabled" @click="createNew">
       Create new one
     </v-btn>
-    <p class="subtitle-1 font-weight-bold my-3">List Of Your BTCH Address</p>
+    <p class="subtitle-1 font-weight-bold my-3">List Of Your tBCH Address</p>
     <v-card
       class="mx-auto"
       outlined
@@ -117,7 +117,7 @@ export default class MyStore extends Vue {
       console.log(e.message)
     }
   }
-  async addMainAddress(address) {
+  async addMainAddress(address:string) {
     this.disabled = true
     const token = Cookies.get('token')
     const url = configs.url
@@ -134,7 +134,7 @@ export default class MyStore extends Vue {
       console.log(e.message)
     }
   }
-  async removeMainAddress(address) {
+  async removeMainAddress(address:string) {
     this.disabled = true
     const token = Cookies.get('token')
     const url = configs.url

@@ -12,10 +12,10 @@
       :disabled="disabled"
       :username="username"
       :profilePhoto="profilePhoto"
-      :paypalToken="paypalToken"
-      :paypalBalance="paypalBalance"
-      @disconnect="disconnectPaypal"
-      @connect="connectPaypal"
+      :btchToken="btchToken"
+      :btchBalance="btchBalance"
+      @connect="connectBtch"
+      @refresh-balance="refreshBalance"
     />
     <v-row justify="space-between">
       <v-col cols="4" class="text-h4 font-weight-bold"
@@ -28,7 +28,7 @@
       :amountRefresh="amountRefresh"
       @get-all-repo="getAllRepo"
       :listRepo="forSale"
-      :paypalToken="paypalToken"
+      :btchToken="btchToken"
       @sell-repo="sellRepo($event.name, $event.amount)"
       @unlist-repo="unlistRepo($event.repo_id)"
     />
@@ -36,10 +36,8 @@
       <v-col cols="4" class="text-h4 font-weight-bold">Owned Repo</v-col>
     </v-row>
     <DashboardOwned
-      :amountRefresh="amountRefresh"
       :disabled="disabled"
       :ownedRepo="true"
-      :paypalToken="paypalToken"
       :listRepo="ownedRepo"
     />
     <DashboardRepoAll
@@ -78,11 +76,11 @@ export default class MyStore extends Vue {
   public username: string = ''
   public profilePhoto: string = ''
   public snackbarAmount: boolean = false
-  public paypalToken: boolean = false
+  public btchToken: boolean = false
   public forSale: Array<object> = []
   public allRepo: Array<object> = []
   public ownedRepo: Array<object> = []
-  public paypalBalance: number = 0
+  public btchBalance: number = 0
   public amountRefresh: number = 0
   public disabled: boolean = true
   public pageInfo_: object = {
@@ -95,22 +93,53 @@ export default class MyStore extends Vue {
     Cookies.remove('token')
     window.location.href = '/'
   }
-  async created() {
+  async mounted() {
     // if (!this.login) window.location.href = '/'
     this.disabled = true
     const token = Cookies.get('token')
-    const url=configs.url
+    const url = configs.url
     const profile_url = configs.get_profile_url
     const forSaleUrl = configs.get_for_sale_url
     const ownedRepoUrl = configs.get_owned_repo_url
-    const profile = this.$axios.get(`${url}?token=${token}`)
-    const forSale = this.$axios.get(`${forSaleUrl}?token=${token}`)
-    const ownedRepo =  this.$axios.get(`${ownedRepoUrl}?token=${token}`)
+    const _profile = this.$axios.get(`${profile_url}?token=${token}`)
+    const _forSale = this.$axios.get(`${forSaleUrl}?token=${token}`)
+    const _ownedRepo = this.$axios.get(`${ownedRepoUrl}?token=${token}`)
+const _btchMain =this.$axios.get(`${url}/get-main-address?token=${token}`,{headers:{"Cache-Control":"no-cache"}})
+    const [profile, forSale, ownedRepo,btchMain ] = await Promise.all([
+      _profile,
+      _forSale,
+      _ownedRepo,
+_btchMain
+    ])
+
+    if (btchMain.data!==null) {
+      this.btchToken = true
+      const { data } = await this.$axios.get(
+        `${url}/get-balance?token=${token}`
+      )
+      this.btchBalance = data;
+    }else{
+this.btchToken = false
+    }
     this.username = profile.data.data.login
     this.profilePhoto = profile.data.data.avatarUrl
     this.forSale = forSale.data.data
     this.ownedRepo = ownedRepo.data.data
     this.disabled = false
+  }
+  async refreshBalance(){
+    this.disabled=true
+    const url = configs.url
+    const token = Cookies.get('token')
+    const btchMain = this.$axios.get(`${url}/get-main-address?token=${token}`)
+    if (btchMain) {
+      this.btchToken = true
+      const { data } = await this.$axios.get(
+        `${url}/get-balance?token=${token}`
+      )
+      this.btchBalance = data;
+    }
+    this.disabled=false
   }
   async getAllRepo(after_: string, before_: string): Promise<void> {
     this.disabled = true
@@ -154,14 +183,14 @@ export default class MyStore extends Vue {
       return
     } else {
       const token = Cookies.get('token')
-      const url = configs.sell_repo_url
+      const url = configs.url
 
-      const { data } = await this.$axios.post(`${url}?token=${token}`, {
+      const { data } = await this.$axios.post(`${url}/sell-repo-btch?token=${token}`, {
         name,
         amount,
       })
       this.amountRefresh = 0
-      this.forSale = data.data
+      this.forSale = data
     }
     this.disabled = false
   }
@@ -182,28 +211,14 @@ export default class MyStore extends Vue {
     this.forSale = data.data
     this.disabled = false
   }
-  async connectPaypal() {
+  async connectBtch() {
     if (this.username.trim() !== '') {
       window.location.href = `/address`
     } else {
       alert('please wait until username shown')
     }
   }
-  async disconnectPaypal() {
-    this.disabled = true
-    if (this.username.trim() !== '') {
-      const url = configs.disconnect_paypal_url
-      const token = Cookies.get('token')
-      await this.$axios.post(`${url}?token=${token}`)
-      this.paypalToken = false
-    } else {
-      alert('please wait until username shown')
-    }
-    this.disabled = false
-    if (this.forSale.length > 0) {
-      this.getforSale()
-    }
-  }
+
   async getforSale() {
     this.disabled = true
     const token = Cookies.get('token')

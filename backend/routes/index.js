@@ -30,7 +30,76 @@ const {
   add_main_address,
   remove_main_address,
   create_new,
+  get_main_address,
+  get_balance,
+  sell_repo_btch,
+  convert_to_btch,
+  get_fee,
+  buy_repo
 } = require("./utils/bitcoin_cash");
+router.post("/buy-repo", async function (req, res, next) {
+  try{
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    params.id = req.body.id.repo_id;
+   
+    const response = await buy_repo(params, model);
+    return res.json(response);
+  }catch(e){
+    console.log(e.message);
+    return res.status(503).end();
+  }
+  
+});
+router.post("/get-fee", async function (req, res, next) {
+  try{
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    params.id = req.body.id;
+   
+    const response = await get_fee(params, model);
+    return res.json(response);
+  }catch(e){
+    console.log(e.message);
+    return res.status(503).end();
+  }
+  
+});
+router.post("/sell-repo-btch", async function (req, res, next) {
+  const params = {};
+  params.name = req.body.name;
+  params.amount = req.body.amount;
+  params.token = req.query.token;
+  params.token_pass = process.env.token_pass;
+  const response = await sell_repo_btch(params, model);
+  return res.json(response);
+});
+router.get("/get-balance", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    const response = await get_balance(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
+router.get("/get-main-address", async function (req, res, next) {
+  try {
+    const params = {};
+    params.token_pass = process.env.token_pass;
+    params.token = req.query.token;
+    const response = await get_main_address(params, model);
+    return res.json(response);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(503).end();
+  }
+});
 router.post("/create-new", async function (req, res, next) {
   try {
     const params = {};
